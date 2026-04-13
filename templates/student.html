@@ -1,0 +1,93 @@
+<!-- templates/student.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Portal</title>
+    <style>
+        body { font-family: 'Segoe UI'; background: #f0f2f5; margin: 40px; }
+        .container { max-width: 800px; margin: auto; }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            padding: 12px;
+            width: 100%;
+            border-radius: 6px;
+            border: none;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .flash {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logout {
+            background: red;
+            color: white;
+            padding: 6px 12px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Student Portal</h1>
+        <a href="/logout" class="logout">Logout</a>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for msg in messages %}
+          <div class="flash">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="card">
+        <h2>Lodge Complaint</h2>
+
+        <form method="POST" action="/add">
+            <textarea name="description"
+                placeholder="Describe your issue (min 10 chars)..."
+                required></textarea>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>
