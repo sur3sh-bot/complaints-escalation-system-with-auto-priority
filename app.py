@@ -155,13 +155,14 @@ def admin_portal():
     ).fetchall()
 
     stats = conn.execute('''
-        SELECT 
-            SUM(CASE WHEN severity = 'Urgent' THEN 1 ELSE 0 END) as urgent_count,
-            SUM(CASE WHEN severity = 'High' THEN 1 ELSE 0 END) as high_count,
-            SUM(CASE WHEN severity = 'Low' THEN 1 ELSE 0 END) as low_count,
-            COUNT(*) as total_count
-        FROM complaints
-    ''').fetchone()
+    SELECT 
+        SUM(CASE WHEN severity = 'Urgent' THEN 1 ELSE 0 END) as urgent_count,
+        SUM(CASE WHEN severity = 'High' THEN 1 ELSE 0 END) as high_count,
+        SUM(CASE WHEN severity = 'Low' THEN 1 ELSE 0 END) as low_count,
+        COUNT(*) as total_count
+    FROM complaints
+    WHERE status != 'Resolved'
+''').fetchone()
 
     conn.close()
 

@@ -141,7 +141,7 @@
 
     {% for c in complaints %}
     <tr>
-        <td>{{ c.id }}</td>
+        <td>{{ loop.index }}</td>
         <td>{{ c.description }}</td>
 
         <td class="
