@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 # --- SECURITY ---
 app.secret_key = os.environ.get("SECRET_KEY", os.urandom(24))
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "123")
 
 DB_FILE = "complaints.db"
 
@@ -46,38 +46,37 @@ def calculate_priority(text):
 
     score = 0
 
-    # --- 1. CRITICAL EMERGENCY KEYWORDS ---
+    # --- 1. EMERGENCY → DIRECT URGENT ---
     emergency_keywords = [
-        "fire", "alarm", "emergency", "danger", "gas leak",
-        "short circuit", "sparking", "explosion"
+        "fire", "alarm", "gas leak", "explosion",
+        "sparking", "short circuit"
     ]
     if any(k in desc for k in emergency_keywords):
         return "Urgent"
 
-    # --- 2. INFRASTRUCTURE FAILURES (HIGH PRIORITY) ---
-    high_keywords = [
+    # --- 2. INFRASTRUCTURE (IMPORTANT BUT NOT ALWAYS URGENT) ---
+    infra_keywords = [
         "lift", "elevator", "ac", "air conditioner",
-        "electricity", "power", "water", "wifi",
-        "internet", "server"
+        "water", "electricity", "power", "wifi", "internet"
     ]
-    if any(k in desc for k in high_keywords):
-        score += 3
+    if any(k in desc for k in infra_keywords):
+        score += 2   # ↓ reduced from 3
 
     # --- 3. FAILURE WORDS ---
     if any(w in desc for w in ['broken', 'not working', 'failed', 'down', 'leak']):
         score += 2
 
     # --- 4. SCALE IMPACT ---
-    if any(w in desc for w in ['entire', 'whole', 'everyone', 'floor', 'block']):
+    if any(w in desc for w in ['entire', 'whole', 'everyone', 'block', 'floor']):
         score += 2
 
-    # --- 5. SENTIMENT (LOW WEIGHT) ---
+    # --- 5. SENTIMENT (VERY LOW IMPACT) ---
     blob = TextBlob(desc)
     if blob.sentiment.polarity < -0.5:
         score += 1
 
     # --- FINAL DECISION ---
-    if score >= 5:
+    if score >= 6:
         return "Urgent"
     elif score >= 3:
         return "High"
