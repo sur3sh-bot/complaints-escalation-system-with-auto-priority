@@ -24,7 +24,6 @@ def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Main table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS complaints (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,7 +36,6 @@ def init_db():
         )
     ''')
 
-    # History table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS complaint_history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -53,25 +51,37 @@ def init_db():
 
 # --- AI PRIORITY ENGINE ---
 def calculate_priority(text):
-    desc = re.sub(r'[^\w\s]', '', text.lower())
+    # 🔥 FIXED preprocessing
+    desc = re.sub(r'[^\w\s]', ' ', text.lower())
     score = 0
 
-    if any(k in desc for k in ["fire", "alarm", "gas leak", "explosion", "sparking"]):
+    # 🔥 FIXED emergency block (INSIDE function)
+    emergency_keywords = [
+        "fire", "alarm", "gas leak", "explosion",
+        "sparking", "sparks", "short circuit"
+    ]
+
+    if any(k in desc for k in emergency_keywords):
         return "Urgent"
 
+    # Infrastructure
     if any(k in desc for k in ["lift", "ac", "water", "electricity", "wifi"]):
         score += 2
 
+    # Failure
     if any(w in desc for w in ['broken', 'not working', 'failed', 'down', 'leak']):
         score += 2
 
-    if any(w in desc for w in ['entire', 'whole', 'everyone', 'block', 'floor']):
-        score += 2
+    # Scale
+    if any(w in desc for w in ['entire', 'whole', 'everyone']):
+        score += 3
 
+    # Sentiment
     blob = TextBlob(desc)
     if blob.sentiment.polarity < -0.5:
         score += 1
 
+    # Final decision
     if score >= 6:
         return "Urgent"
     elif score >= 3:
@@ -102,10 +112,7 @@ def home():
     if 'user_role' not in session:
         return redirect('/login')
 
-    if session['user_role'] == 'admin':
-        return redirect('/admin')
-
-    return redirect('/student')
+    return redirect('/admin' if session['user_role'] == 'admin' else '/student')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -162,7 +169,6 @@ def admin_portal():
 
 
 # --- STATUS PAGES ---
-
 @app.route('/open')
 def open_complaints():
     conn = get_db_connection()
@@ -171,10 +177,8 @@ def open_complaints():
     ).fetchall()
     conn.close()
 
-    return render_template('status_page.html',
-                           complaints=complaints,
-                           title="Open Complaints",
-                           page_type="open")
+    return render_template('status_page.html', complaints=complaints,
+                           title="Open Complaints", page_type="open")
 
 
 @app.route('/in-progress')
@@ -185,10 +189,8 @@ def in_progress_complaints():
     ).fetchall()
     conn.close()
 
-    return render_template('status_page.html',
-                           complaints=complaints,
-                           title="In Progress Complaints",
-                           page_type="progress")
+    return render_template('status_page.html', complaints=complaints,
+                           title="In Progress Complaints", page_type="progress")
 
 
 @app.route('/resolved')
@@ -199,13 +201,11 @@ def resolved_complaints():
     ).fetchall()
     conn.close()
 
-    return render_template('status_page.html',
-                           complaints=complaints,
-                           title="Resolved Complaints",
-                           page_type="resolved")
+    return render_template('status_page.html', complaints=complaints,
+                           title="Resolved Complaints", page_type="resolved")
 
 
-# --- ADD COMPLAINT ---
+# --- ADD ---
 @app.route('/add', methods=['POST'])
 def add_complaint():
     text = request.form.get('description', '').strip()
@@ -228,7 +228,7 @@ def add_complaint():
     return redirect('/student')
 
 
-# --- UPDATE STATUS ---
+# --- UPDATE ---
 @app.route('/update_status/<int:id>/<string:new_status>')
 def update_status(id, new_status):
     if new_status not in VALID_STATUSES:
@@ -239,6 +239,9 @@ def update_status(id, new_status):
     row = conn.execute(
         'SELECT status FROM complaints WHERE id = ?', (id,)
     ).fetchone()
+
+    if not row:
+        return "Not found", 404
 
     old_status = row['status']
 
@@ -258,7 +261,6 @@ def update_status(id, new_status):
     conn.commit()
     conn.close()
 
-    # SMART REDIRECT
     if new_status == "In Progress":
         return redirect('/in-progress')
     elif new_status == "Resolved":
@@ -290,9 +292,10 @@ def history(id):
     ''', (id,)).fetchall()
 
     conn.close()
-
     return render_template('history.html', history=history)
 
+
+# --- LOGOUT ---
 @app.route('/logout')
 def logout():
     session.clear()
