@@ -36,6 +36,15 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    cursor.execute('''
+CREATE TABLE IF NOT EXISTS complaint_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    complaint_id INTEGER,
+    old_status TEXT,
+    new_status TEXT,
+    changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+''')
 
     conn.commit()
     conn.close()
@@ -168,6 +177,49 @@ def admin_portal():
 
     return render_template('admin.html', complaints=complaints, stats=stats)
 
+@app.route('/open')
+def open_complaints():
+    if session.get('user_role') != 'admin':
+        return redirect('/login')
+
+    conn = get_db_connection()
+    complaints = conn.execute(
+        "SELECT * FROM complaints WHERE status = 'Open' ORDER BY created_at DESC"
+    ).fetchall()
+    conn.close()
+
+    return render_template('status_page.html', complaints=complaints, title="Open Complaints")
+
+
+@app.route('/in-progress')
+def in_progress_complaints():
+    if session.get('user_role') != 'admin':
+        return redirect('/login')
+
+    conn = get_db_connection()
+    complaints = conn.execute(
+        "SELECT * FROM complaints WHERE status = 'In Progress' ORDER BY created_at DESC"
+    ).fetchall()
+    conn.close()
+
+    return render_template('status_page.html', complaints=complaints, title="In Progress Complaints")
+
+
+@app.route('/resolved')
+def resolved_complaints():
+    if session.get('user_role') != 'admin':
+        return redirect('/login')
+
+    conn = get_db_connection()
+    complaints = conn.execute(
+        "SELECT * FROM complaints WHERE status = 'Resolved' ORDER BY created_at DESC"
+    ).fetchall()
+    conn.close()
+
+    return render_template('status_page.html', complaints=complaints, title="Resolved Complaints")
+
+
+
 
 @app.route('/add', methods=['POST'])
 def add_complaint():
@@ -211,14 +263,46 @@ def update_status(id, new_status):
 
     conn = get_db_connection()
 
-    conn.execute(
-        'UPDATE complaints SET status = ? WHERE id = ?',
-        (new_status, id)
-    )
+    # 1) Fetch current (old) status
+    row = conn.execute(
+        'SELECT status FROM complaints WHERE id = ?', (id,)
+    ).fetchone()
 
-    conn.commit()
+    if not row:
+        conn.close()
+        return "Complaint not found", 404
+
+    old_status = row['status']
+
+    # Avoid redundant writes (nice touch)
+    if old_status == new_status:
+        conn.close()
+        return redirect('/admin')
+
+    # 2) TRANSACTION (ACID - atomic)
+    try:
+        conn.execute("BEGIN")
+
+        # Update main table
+        conn.execute(
+            'UPDATE complaints SET status = ? WHERE id = ?',
+            (new_status, id)
+        )
+
+        # Insert history row
+        conn.execute(
+            '''INSERT INTO complaint_history (complaint_id, old_status, new_status)
+               VALUES (?, ?, ?)''',
+            (id, old_status, new_status)
+        )
+
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        return f"Error: {e}", 500
+
     conn.close()
-
     return redirect('/admin')
 
 
@@ -244,6 +328,24 @@ def delete_complaint(id):
 def logout():
     session.clear()
     return redirect('/login')
+
+@app.route('/history/<int:complaint_id>')
+def view_history(complaint_id):
+    if session.get('user_role') != 'admin':
+        return redirect('/login')
+
+    conn = get_db_connection()
+
+    history = conn.execute('''
+        SELECT old_status, new_status, changed_at
+        FROM complaint_history
+        WHERE complaint_id = ?
+        ORDER BY changed_at DESC
+    ''', (complaint_id,)).fetchall()
+
+    conn.close()
+
+    return render_template('history.html', history=history)
 
 
 # --- RUN ---

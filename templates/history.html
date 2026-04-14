@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Complaint History</title>
+    <style>
+        body { font-family: 'Segoe UI'; padding: 30px; background: #f0f2f5; }
+        table { width: 100%; background: white; border-collapse: collapse; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; }
+        th { background: #007bff; color: white; }
+    </style>
+</head>
+<body>
+
+<h2>Complaint History</h2>
+
+<table>
+    <tr>
+        <th>Old Status</th>
+        <th>New Status</th>
+        <th>Changed At</th>
+    </tr>
+
+    {% for h in history %}
+    <tr>
+        <td>{{ h.old_status }}</td>
+        <td>{{ h.new_status }}</td>
+        <td>{{ h.changed_at }}</td>
+    </tr>
+    {% endfor %}
+
+    {% if history|length == 0 %}
+    <tr>
+        <td colspan="3" style="text-align:center;">No history found</td>
+    </tr>
+    {% endif %}
+</table>
+
+</body>
+</html>

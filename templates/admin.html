@@ -44,6 +44,11 @@
             padding: 20px;
             border-radius: 10px;
             text-align: center;
+            transition: 0.2s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
         }
 
         .card b {
@@ -83,12 +88,18 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
         }
 
         .open { background: gray; color: white; }
         .progress { background: orange; color: white; }
         .resolved { background: green; color: white; }
         .delete { background: red; color: white; }
+        .history { background: #17a2b8; color: white; }
 
     </style>
 </head>
@@ -171,6 +182,10 @@
                 <button class="btn resolved">Resolved</button>
             </a>
 
+            <a href="/history/{{ c.id }}">
+                <button class="btn history">History</button>
+            </a>
+
             <a href="/delete/{{ c.id }}" onclick="return confirm('Delete this complaint?')">
                 <button class="btn delete">Delete</button>
             </a>
@@ -215,12 +230,7 @@ new Chart(ctx, {
                 text: 'Active Complaint Priority Distribution'
             },
             legend: {
-                position: 'right',
-                labels: {
-                    font: {
-                        size: 14
-                    }
-                }
+                position: 'right'
             }
         }
     }
