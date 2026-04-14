@@ -188,7 +188,10 @@ def open_complaints():
     ).fetchall()
     conn.close()
 
-    return render_template('status_page.html', complaints=complaints, title="Open Complaints")
+    return render_template('status_page.html',
+                       complaints=complaints,
+                       title="Open Complaints",
+                       page_type="open")
 
 
 @app.route('/in-progress')
@@ -202,7 +205,10 @@ def in_progress_complaints():
     ).fetchall()
     conn.close()
 
-    return render_template('status_page.html', complaints=complaints, title="In Progress Complaints")
+    return render_template('status_page.html',
+                       complaints=complaints,
+                       title="Resolved Complaints",
+                       page_type="resolved")
 
 
 @app.route('/resolved')
