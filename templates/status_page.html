@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <style>
+        body { font-family: 'Segoe UI'; background: #f0f2f5; margin: 40px; }
+
+        h1 { margin-bottom: 20px; }
+
+        .nav a {
+            margin-right: 15px;
+            text-decoration: none;
+            padding: 8px 12px;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th { background: #007bff; color: white; }
+
+        .urgent { color: red; font-weight: bold; }
+        .high { color: orange; font-weight: bold; }
+        .low { color: green; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<h1>{{ title }}</h1>
+
+<div class="nav">
+    <a href="/admin">Dashboard</a>
+    <a href="/open">Open</a>
+    <a href="/in-progress">In Progress</a>
+    <a href="/resolved">Resolved</a>
+</div>
+
+<br>
+
+<table>
+    <tr>
+        <th>No.</th>
+        <th>Description</th>
+        <th>Priority</th>
+        <th>Department</th>
+    </tr>
+
+    {% for c in complaints %}
+    <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ c.description }}</td>
+
+        <td class="
+            {% if c.severity == 'Urgent' %}urgent
+            {% elif c.severity == 'High' %}high
+            {% else %}low
+            {% endif %}
+        ">
+            {{ c.severity }}
+        </td>
+
+        <td>{{ c.department }}</td>
+    </tr>
+    {% endfor %}
+
+    {% if complaints|length == 0 %}
+    <tr>
+        <td colspan="4" style="text-align:center;">No complaints found</td>
+    </tr>
+    {% endif %}
+</table>
+
+</body>
+</html>
