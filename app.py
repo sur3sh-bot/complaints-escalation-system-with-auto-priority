@@ -1,7 +1,7 @@
 import sqlite3 #to handle database operations
 import re #for text preprocessing in AI priority engine
-import os
-from flask import Flask, render_template, request, redirect, session, flash
+import os #to handle environment variables for security
+from flask import Flask, render_template, request, redirect, session, flash #for web framework and user session management
 from textblob import TextBlob
 
 app = Flask(__name__)
