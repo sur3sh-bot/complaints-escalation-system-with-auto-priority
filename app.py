@@ -1,5 +1,5 @@
-import sqlite3
-import re
+import sqlite3 #to handle database operations
+import re #for text preprocessing in AI priority engine
 import os
 from flask import Flask, render_template, request, redirect, session, flash
 from textblob import TextBlob
