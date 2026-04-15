@@ -169,7 +169,7 @@ def admin_portal():
 
 
 # --- STATUS PAGES ---
-@app.route('/open')
+@app.route('/open') #to display complaints filtered by "Open" status, allowing admins to focus on new issues that need attention
 def open_complaints():
     conn = get_db_connection()
     complaints = conn.execute(
@@ -181,7 +181,7 @@ def open_complaints():
                            title="Open Complaints", page_type="open")
 
 
-@app.route('/in-progress')
+@app.route('/in-progress') #to display complaints filtered by "In Progress" status, allowing admins to track ongoing issues and their progress
 def in_progress_complaints():
     conn = get_db_connection()
     complaints = conn.execute(
@@ -193,7 +193,7 @@ def in_progress_complaints():
                            title="In Progress Complaints", page_type="progress")
 
 
-@app.route('/resolved')
+@app.route('/resolved') #to display complaints filtered by "Resolved" status, allowing admins to review completed issues and maintain a record of past complaints
 def resolved_complaints():
     conn = get_db_connection()
     complaints = conn.execute(
@@ -206,7 +206,7 @@ def resolved_complaints():
 
 
 # --- ADD ---
-@app.route('/add', methods=['POST'])
+@app.route('/add', methods=['POST']) #to handle the submission of new complaints by students, including validation and AI-based priority assignment before saving to the database
 def add_complaint():
     text = request.form.get('description', '').strip()
 
@@ -229,7 +229,7 @@ def add_complaint():
 
 
 # --- UPDATE ---
-@app.route('/update_status/<int:id>/<string:new_status>')
+@app.route('/update_status/<int:id>/<string:new_status>') #to handle the updating of complaint status by admins, ensuring that changes are logged in the history table for audit purposes and allowing for redirection to the appropriate status page after the update
 def update_status(id, new_status):
     if new_status not in VALID_STATUSES:
         return "Invalid status", 400
@@ -270,7 +270,7 @@ def update_status(id, new_status):
 
 
 # --- DELETE ---
-@app.route('/delete/<int:id>')
+@app.route('/delete/<int:id>') #to handle the deletion of complaints by admins, ensuring that the complaint is removed from the database and the admin is redirected back to the main admin page to see the updated list of complaints
 def delete_complaint(id):
     conn = get_db_connection()
     conn.execute('DELETE FROM complaints WHERE id = ?', (id,))
