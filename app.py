@@ -20,7 +20,7 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-def init_db():
+def init_db(): #to initialize the database and create necessary tables if they don't exist
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -50,7 +50,7 @@ def init_db():
     conn.close()
 
 # --- AI PRIORITY ENGINE ---
-def calculate_priority(text):
+def calculate_priority(text): #to analyze the complaint description and assign a priority level based on keywords, sentiment, and scale
     # 🔥 FIXED preprocessing
     desc = re.sub(r'[^\w\s]', ' ', text.lower())
     score = 0
@@ -90,7 +90,7 @@ def calculate_priority(text):
         return "Low"
 
 # --- DEPARTMENT DETECTION ---
-def detect_department(text):
+def detect_department(text): #to analyze the complaint description and determine which department should handle it based on keywords
     mapping = {
         "Electrical": ["light", "electric", "fan"],
         "Plumbing": ["water", "leak", "tap"],
