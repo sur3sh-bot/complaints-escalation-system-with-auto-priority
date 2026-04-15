@@ -115,7 +115,7 @@ def home():
     return redirect('/admin' if session['user_role'] == 'admin' else '/student')
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST']) #to handle user login and role assignment (admin or student)
 def login():
     if request.method == 'POST':
         role = request.form.get('role', '').strip().lower()
@@ -135,14 +135,14 @@ def login():
     return render_template('login.html')
 
 
-@app.route('/student')
+@app.route('/student') #to display the student portal where they can submit complaints and view their status
 def student_portal():
     if session.get('user_role') != 'student':
         return redirect('/login')
     return render_template('student.html')
 
 
-@app.route('/admin')
+@app.route('/admin') #to display the admin portal where they can view all complaints, update their status, and see statistics
 def admin_portal():
     if session.get('user_role') != 'admin':
         return redirect('/login')
