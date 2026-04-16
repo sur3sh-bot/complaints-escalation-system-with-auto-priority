@@ -145,6 +145,31 @@
 
 </div>
 
+<form method="GET" action="/admin" style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+    
+    <input type="text" name="q" placeholder="Search description..."
+           value="{{ filters.q or '' }}"
+           style="padding:6px; width:220px;">
+
+    <select name="status">
+        <option value="">All Status</option>
+        <option value="Open" {% if filters.status=='Open' %}selected{% endif %}>Open</option>
+        <option value="In Progress" {% if filters.status=='In Progress' %}selected{% endif %}>In Progress</option>
+        <option value="Resolved" {% if filters.status=='Resolved' %}selected{% endif %}>Resolved</option>
+    </select>
+
+    <select name="severity">
+        <option value="">All Priority</option>
+        <option value="Urgent" {% if filters.severity=='Urgent' %}selected{% endif %}>Urgent</option>
+        <option value="High" {% if filters.severity=='High' %}selected{% endif %}>High</option>
+        <option value="Low" {% if filters.severity=='Low' %}selected{% endif %}>Low</option>
+    </select>
+
+    <button type="submit" class="btn open">Apply</button>
+    <a href="/admin"><button type="button" class="btn delete">Reset</button></a>
+
+</form>
+
 <!-- TABLE -->
 <table>
     <tr>
