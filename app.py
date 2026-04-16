@@ -142,17 +142,37 @@ def student_portal():
     return render_template('student.html')
 
 
-@app.route('/admin') #to display the admin portal where they can view all complaints, update their status, and see statistics
+@app.route('/admin')
 def admin_portal():
     if session.get('user_role') != 'admin':
         return redirect('/login')
 
+    status = request.args.get('status')
+    severity = request.args.get('severity')
+    q = request.args.get('q')  # search text
+
     conn = get_db_connection()
 
-    complaints = conn.execute(
-        'SELECT * FROM complaints ORDER BY created_at DESC'
-    ).fetchall()
+    query = "SELECT * FROM complaints WHERE 1=1"
+    params = []
 
+    if status:
+        query += " AND status = ?"
+        params.append(status)
+
+    if severity:
+        query += " AND severity = ?"
+        params.append(severity)
+
+    if q:
+        query += " AND description LIKE ?"
+        params.append(f"%{q}%")
+
+    query += " ORDER BY created_at DESC"
+
+    complaints = conn.execute(query, params).fetchall()
+
+    # keep your existing stats query
     stats = conn.execute('''
         SELECT 
             SUM(CASE WHEN severity = 'Urgent' THEN 1 ELSE 0 END) as urgent_count,
@@ -165,7 +185,12 @@ def admin_portal():
 
     conn.close()
 
-    return render_template('admin.html', complaints=complaints, stats=stats)
+    return render_template(
+        'admin.html',
+        complaints=complaints,
+        stats=stats,
+        filters={"status": status, "severity": severity, "q": q}
+    )
 
 
 # --- STATUS PAGES ---
