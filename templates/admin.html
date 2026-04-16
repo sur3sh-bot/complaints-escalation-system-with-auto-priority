@@ -143,6 +143,10 @@
         <canvas id="priorityChart"></canvas>
     </div>
 
+    <div style="width: 400px; margin: 40px auto;">
+    <canvas id="deptChart"></canvas>
+</div>
+
 </div>
 
 <form method="GET" action="/admin" style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
@@ -261,6 +265,38 @@ new Chart(ctx, {
             },
             legend: {
                 position: 'right'
+            }
+        }
+    }
+});
+</script>
+<script>
+const deptCtx = document.getElementById('deptChart').getContext('2d');
+
+new Chart(deptCtx, {
+    type: 'bar',
+    data: {
+        labels: [
+            {% for d in dept_data %}
+                "{{ d.department }}",
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Complaints by Department',
+            data: [
+                {% for d in dept_data %}
+                    {{ d.count }},
+                {% endfor %}
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Department-wise Complaints'
             }
         }
     }

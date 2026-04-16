@@ -147,12 +147,14 @@ def admin_portal():
     if session.get('user_role') != 'admin':
         return redirect('/login')
 
+    # --- FILTER INPUTS ---
     status = request.args.get('status')
     severity = request.args.get('severity')
-    q = request.args.get('q')  # search text
+    q = request.args.get('q')
 
     conn = get_db_connection()
 
+    # --- DYNAMIC QUERY ---
     query = "SELECT * FROM complaints WHERE 1=1"
     params = []
 
@@ -172,7 +174,14 @@ def admin_portal():
 
     complaints = conn.execute(query, params).fetchall()
 
-    # keep your existing stats query
+    # --- 🔥 NEW: DEPARTMENT ANALYTICS ---
+    dept_data = conn.execute('''
+        SELECT department, COUNT(*) as count
+        FROM complaints
+        GROUP BY department
+    ''').fetchall()
+
+    # --- STATS (ACTIVE ONLY) ---
     stats = conn.execute('''
         SELECT 
             SUM(CASE WHEN severity = 'Urgent' THEN 1 ELSE 0 END) as urgent_count,
@@ -189,9 +198,13 @@ def admin_portal():
         'admin.html',
         complaints=complaints,
         stats=stats,
-        filters={"status": status, "severity": severity, "q": q}
+        filters={
+            "status": status,
+            "severity": severity,
+            "q": q
+        },
+        dept_data=dept_data   # 👈 NEW DATA FOR CHART
     )
-
 
 # --- STATUS PAGES ---
 @app.route('/open') #to display complaints filtered by "Open" status, allowing admins to focus on new issues that need attention
