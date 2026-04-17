@@ -287,6 +287,7 @@ def add_complaint():
 
     conn.commit()
     conn.close()
+    flash("Complaint submitted successfully")
 
     return redirect('/student')
 

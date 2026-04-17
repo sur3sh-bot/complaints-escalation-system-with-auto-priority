@@ -1,11 +1,19 @@
-<!-- templates/student.html -->
 <!DOCTYPE html>
 <html>
 <head>
     <title>Student Portal</title>
+
     <style>
-        body { font-family: 'Segoe UI'; background: #f0f2f5; margin: 40px; }
-        .container { max-width: 800px; margin: auto; }
+        body {
+            font-family: 'Segoe UI';
+            background: #f0f2f5;
+            margin: 40px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
 
         .card {
             background: white;
@@ -56,45 +64,76 @@
             text-decoration: none;
             border-radius: 5px;
         }
+
+        /* Status badges */
         .open {
-    background: gray;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 5px;
-}
+            background: gray;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 5px;
+        }
 
-.progress {
-    background: orange;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 5px;
-}
+        .progress {
+            background: orange;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 5px;
+        }
 
-.resolved {
-    background: green;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 5px;
-}
+        .resolved {
+            background: green;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 5px;
+        }
+
+        /* Priority colors */
+        .urgent { color: red; font-weight: bold; }
+        .high { color: orange; font-weight: bold; }
+        .low { color: green; font-weight: bold; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
     </style>
 </head>
+
 <body>
 
 <div class="container">
 
+    <!-- HEADER -->
     <div class="header">
         <h1>Student Portal</h1>
         <a href="/logout" class="logout">Logout</a>
     </div>
 
+    <!-- FLASH MESSAGE (ONLY ONCE) -->
     {% with messages = get_flashed_messages() %}
       {% if messages %}
-        {% for msg in messages %}
-          <div class="flash">{{ msg }}</div>
-        {% endfor %}
+        <div class="flash">
+            {{ messages[0] }}
+        </div>
       {% endif %}
     {% endwith %}
 
+    <hr style="margin:30px 0;">
+
+    <!-- COMPLAINT FORM -->
     <div class="card">
         <h2>Lodge Complaint</h2>
 
@@ -105,49 +144,54 @@
 
             <button type="submit">Submit</button>
         </form>
+
+        <!-- MY COMPLAINTS -->
         <h2 style="margin-top:30px;">My Complaints</h2>
 
-<table>
-    <tr>
-        <th>No.</th>
-        <th>Description</th>
-        <th>Priority</th>
-        <th>Status</th>
-    </tr>
+        <table>
+            <tr>
+                <th>No.</th>
+                <th>Description</th>
+                <th>Priority</th>
+                <th>Status</th>
+            </tr>
 
-    {% for c in complaints %}
-    <tr>
-        <td>{{ loop.index }}</td>
-        <td>{{ c.description }}</td>
+            {% for c in complaints %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ c.description }}</td>
 
-        <td class="
-            {% if c.severity == 'Urgent' %}urgent
-            {% elif c.severity == 'High' %}high
-            {% else %}low
+                <td class="
+                    {% if c.severity == 'Urgent' %}urgent
+                    {% elif c.severity == 'High' %}high
+                    {% else %}low
+                    {% endif %}
+                ">
+                    {{ c.severity }}
+                </td>
+
+                <td>
+                    <span class="
+                        {% if c.status == 'Open' %}open
+                        {% elif c.status == 'In Progress' %}progress
+                        {% else %}resolved
+                        {% endif %}
+                    ">
+                        {{ c.status }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+
+            {% if complaints|length == 0 %}
+            <tr>
+                <td colspan="4" style="text-align:center;">
+                    No complaints yet 🚀
+                </td>
+            </tr>
             {% endif %}
-        ">
-            {{ c.severity }}
-        </td>
+        </table>
 
-        <td>
-            <span class="
-                {% if c.status == 'Open' %}open
-                {% elif c.status == 'In Progress' %}progress
-                {% else %}resolved
-                {% endif %}
-            ">
-                {{ c.status }}
-            </span>
-        </td>
-    </tr>
-    {% endfor %}
-
-    {% if complaints|length == 0 %}
-    <tr>
-        <td colspan="4" style="text-align:center;">No complaints yet 🚀</td>
-    </tr>
-    {% endif %}
-</table>
     </div>
 
 </div>
