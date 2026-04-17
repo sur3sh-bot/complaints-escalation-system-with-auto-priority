@@ -56,6 +56,26 @@
             text-decoration: none;
             border-radius: 5px;
         }
+        .open {
+    background: gray;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 5px;
+}
+
+.progress {
+    background: orange;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 5px;
+}
+
+.resolved {
+    background: green;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 5px;
+}
     </style>
 </head>
 <body>
@@ -85,6 +105,49 @@
 
             <button type="submit">Submit</button>
         </form>
+        <h2 style="margin-top:30px;">My Complaints</h2>
+
+<table>
+    <tr>
+        <th>No.</th>
+        <th>Description</th>
+        <th>Priority</th>
+        <th>Status</th>
+    </tr>
+
+    {% for c in complaints %}
+    <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ c.description }}</td>
+
+        <td class="
+            {% if c.severity == 'Urgent' %}urgent
+            {% elif c.severity == 'High' %}high
+            {% else %}low
+            {% endif %}
+        ">
+            {{ c.severity }}
+        </td>
+
+        <td>
+            <span class="
+                {% if c.status == 'Open' %}open
+                {% elif c.status == 'In Progress' %}progress
+                {% else %}resolved
+                {% endif %}
+            ">
+                {{ c.status }}
+            </span>
+        </td>
+    </tr>
+    {% endfor %}
+
+    {% if complaints|length == 0 %}
+    <tr>
+        <td colspan="4" style="text-align:center;">No complaints yet 🚀</td>
+    </tr>
+    {% endif %}
+</table>
     </div>
 
 </div>
