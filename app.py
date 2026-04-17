@@ -156,7 +156,7 @@ def student_portal():
     return render_template('student.html', complaints=complaints)
 
 
-@app.route('/admin')
+@app.route('/admin') #to display the admin portal with dynamic filtering options and department analytics, allowing admins to efficiently manage complaints and gain insights into departmental performance
 def admin_portal():
     if session.get('user_role') != 'admin':
         return redirect('/login')
