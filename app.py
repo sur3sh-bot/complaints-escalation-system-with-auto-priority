@@ -135,11 +135,25 @@ def login():
     return render_template('login.html')
 
 
-@app.route('/student') #to display the student portal where they can submit complaints and view their status
+@app.route('/student')
 def student_portal():
     if session.get('user_role') != 'student':
         return redirect('/login')
-    return render_template('student.html')
+
+    conn = get_db_connection()
+
+    my_ids = session.get('my_complaints', [])
+
+    if my_ids:
+        placeholders = ','.join(['?'] * len(my_ids))
+        query = f"SELECT * FROM complaints WHERE id IN ({placeholders}) ORDER BY created_at DESC"
+        complaints = conn.execute(query, my_ids).fetchall()
+    else:
+        complaints = []
+
+    conn.close()
+
+    return render_template('student.html', complaints=complaints)
 
 
 @app.route('/admin')
@@ -244,7 +258,7 @@ def resolved_complaints():
 
 
 # --- ADD ---
-@app.route('/add', methods=['POST']) #to handle the submission of new complaints by students, including validation and AI-based priority assignment before saving to the database
+@app.route('/add', methods=['POST'])
 def add_complaint():
     text = request.form.get('description', '').strip()
 
@@ -256,10 +270,21 @@ def add_complaint():
     dept = detect_department(text)
 
     conn = get_db_connection()
+
     conn.execute(
         'INSERT INTO complaints (description, severity, department) VALUES (?, ?, ?)',
         (text, priority, dept)
     )
+
+    # ✅ MUST be inside function (proper indentation)
+    last_id = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
+
+    if 'my_complaints' not in session:
+        session['my_complaints'] = []
+
+    session['my_complaints'].append(last_id)
+    session.modified = True
+
     conn.commit()
     conn.close()
 
