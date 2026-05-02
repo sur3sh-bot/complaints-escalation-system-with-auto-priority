@@ -276,7 +276,7 @@ def add_complaint():
         (text, priority, dept)
     )
 
-    #  MUST be inside function 
+    #  MUST be inside function
     last_id = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
 
     if 'my_complaints' not in session:
