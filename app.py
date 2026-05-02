@@ -51,11 +51,11 @@ def init_db(): #to initialize the database and create necessary tables if they d
 
 # --- AI PRIORITY ENGINE ---
 def calculate_priority(text): #to analyze the complaint description and assign a priority level based on keywords, sentiment, and scale
-    # 🔥 FIXED preprocessing
+    #  FIXED preprocessing
     desc = re.sub(r'[^\w\s]', ' ', text.lower())
     score = 0
 
-    # 🔥 FIXED emergency block (INSIDE function)
+    #  FIXED emergency block (INSIDE function)
     emergency_keywords = [
         "fire", "alarm", "gas leak", "explosion",
         "sparking", "sparks", "short circuit"
@@ -188,7 +188,7 @@ def admin_portal():
 
     complaints = conn.execute(query, params).fetchall()
 
-    # --- 🔥 NEW: DEPARTMENT ANALYTICS ---
+    # ---  NEW: DEPARTMENT ANALYTICS ---
     dept_data = conn.execute('''
         SELECT department, COUNT(*) as count
         FROM complaints
@@ -217,7 +217,7 @@ def admin_portal():
             "severity": severity,
             "q": q
         },
-        dept_data=dept_data   # 👈 NEW DATA FOR CHART
+        dept_data=dept_data   #  NEW DATA FOR CHART
     )
 
 # --- STATUS PAGES ---
@@ -276,7 +276,7 @@ def add_complaint():
         (text, priority, dept)
     )
 
-    # ✅ MUST be inside function (proper indentation)
+    #  MUST be inside function (proper indentation)
     last_id = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
 
     if 'my_complaints' not in session:
