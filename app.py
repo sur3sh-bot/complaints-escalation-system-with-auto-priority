@@ -259,7 +259,7 @@ def resolved_complaints():
 
 
 # --- ADD ---
-@app.route('/add', methods=['POST'])
+@app.route('/add', methods=['POST']) #to handle the submission of new complaints by students, including validation of input data, AI-based priority assignment, department detection, and ensuring that the complaint is associated with the student's session for future reference
 def add_complaint():
     text = request.form.get('description', '').strip()
 
@@ -345,7 +345,7 @@ def delete_complaint(id):
 
 
 # --- HISTORY ---
-@app.route('/history/<int:id>')
+@app.route('/history/<int:id>') #to display the history of status changes for a specific complaint, allowing admins to track the progression of the complaint over time and review any changes made to its status
 def history(id):
     conn = get_db_connection()
 
@@ -361,8 +361,7 @@ def history(id):
 
 
 # --- LOGOUT ---
-@app.route('/logout')
-def logout():
+@app.route('/logout')  
     session.clear()
     return redirect('/login')
 
