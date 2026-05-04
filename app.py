@@ -4,7 +4,7 @@ import os #to handle environment variables for security
 from flask import Flask, render_template, request, redirect, session, flash #for web framework and user session management
 from textblob import TextBlob #for sentiment analysis in AI priority engine
 
-app = Flask(__name__)
+app = Flask(__name__) #to create the Flask application instance 
 
 # --- SECURITY ---
 app.secret_key = os.environ.get("SECRET_KEY", os.urandom(24))
