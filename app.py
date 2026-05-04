@@ -108,7 +108,7 @@ def detect_department(text):
     return "General"
 # --- ROUTES ---
 
-@app.route('/')
+@app.route('/') #to redirect users to the appropriate portal based on their role, ensuring that only authenticated users can access the main page and are directed to the correct interface for their needs
 def home():
     if 'user_role' not in session:
         return redirect('/login')
