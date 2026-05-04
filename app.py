@@ -136,7 +136,7 @@ def login():
     return render_template('login.html')
 
 
-@app.route('/student')
+@app.route('/student') #to display the student portal with a form to submit new complaints and a list of their previously submitted complaints, allowing students to easily track the status of their issues and submit new ones as needed
 def student_portal():
     if session.get('user_role') != 'student':
         return redirect('/login')
@@ -361,7 +361,7 @@ def history(id):
 
 
 # --- LOGOUT ---
-@app.route('/logout')  
+@app.route('/logout')  #to handle user logout by clearing the session and redirecting to the login page, ensuring that any sensitive information is removed from the session for security purposes
     session.clear()
     return redirect('/login')
 
