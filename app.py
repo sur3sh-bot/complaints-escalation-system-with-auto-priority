@@ -90,21 +90,22 @@ def calculate_priority(text): #to analyze the complaint description and assign a
         return "Low"
 
 # --- DEPARTMENT DETECTION ---
-def detect_department(text): #to analyze the complaint description and determine which department should handle it based on keywords
-    mapping = {
-        "Electrical": ["light", "electric", "fan"],
-        "Plumbing": ["water", "leak", "tap"],
-        "IT": ["wifi", "internet"],
-        "Maintenance": ["broken", "repair"]
-    }
+def detect_department(text):
+    desc = text.lower()
 
-    text = text.lower()
-    for dept, keywords in mapping.items():
-        if any(k in text for k in keywords):
-            return dept
+    if any(k in desc for k in ["fan", "light", "electric", "power", "switch", "wiring"]):
+        return "Electrical"
+
+    if any(k in desc for k in ["water", "leak", "pipe", "tap", "bathroom", "washroom"]):
+        return "Plumbing"
+
+    if any(k in desc for k in ["wifi", "internet", "network", "server", "system"]):
+        return "IT"
+
+    if any(k in desc for k in ["ac", "air conditioner", "projector", "repair", "broken"]):
+        return "Maintenance"
 
     return "General"
-
 # --- ROUTES ---
 
 @app.route('/')
